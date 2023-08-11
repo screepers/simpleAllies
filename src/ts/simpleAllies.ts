@@ -8,7 +8,7 @@ export const allySegmentID = 90
 // This isn't in the docs for some reason, so we need to add it
 export const maxSegmentsOpen = 10
 
-type AllyRequestTypes =     'resource' |
+export type AllyRequestTypes =     'resource' |
 'defense' |
 'attack' |
 'player' |
@@ -53,7 +53,7 @@ export interface PlayerRequest extends AllyRequest {
     lastAttackedBy?: number
 }
 
-type WorkRequestType = 'build' | 'upgrade' | 'repair'
+export type WorkRequestType = 'build' | 'upgrade' | 'repair'
 
 export interface WorkRequest extends AllyRequest {
     priority: number
@@ -137,7 +137,6 @@ class SimpleAllies {
             work: {},
             room: {},
         }
-
         this.requestID = 0
 
         this.readAllySegment()
