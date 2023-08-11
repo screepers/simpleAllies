@@ -1,4 +1,4 @@
-import { AllyRequestTypes, AllyRequests } from "simpleAllies"
+import { AllyRequestTypes, AllyRequests } from "../src/ts/simpleAllies"
 
 // Here's what the segmentData property of simpleAllies might look like when it has a request
 

@@ -19,5 +19,6 @@
         "sourceMap": false,
         "skipLibCheck": true
     },
-    "exclude": ["node_modules", "src/js", "docs"]
+    "include": ["./src/ts"],
+    /* "exclude": ["node_modules", "src/js", "docs"] */
 }

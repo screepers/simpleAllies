@@ -1,6 +1,6 @@
 // IMPORTANT: This code is just meant to show you how use the segment data. It probably execute
 
-import { AllyRequestTypes, ResourceRequest, simpleAllies } from "simpleAllies";
+import { AllyRequestTypes, ResourceRequest, simpleAllies } from "../src/ts/simpleAllies";
 
 // Example of fulfilling an ally resource request
 
