@@ -1,0 +1,23 @@
+{
+    "compilerOptions": {
+        "allowJs": true,
+        "experimentalDecorators": true,
+        "module": "CommonJS",
+        "lib": ["es2019", "dom"],
+        "target": "ESNext",
+        "moduleResolution": "node",
+        "outDir": "src/js",
+        "baseUrl": "src/ts",
+        "strict": true,
+        "noImplicitAny": true,
+        "removeComments": false,
+        "noImplicitReturns": true,
+        "allowSyntheticDefaultImports": true,
+        "allowUnreachableCode": true,
+        "strictNullChecks": false,
+        "esModuleInterop": true,
+        "sourceMap": false,
+        "skipLibCheck": true
+    },
+    "exclude": ["node_modules", "src/js", "docs"]
+}
