@@ -1,4 +1,4 @@
-import { AllyRequestTypes, AllyRequests } from "../src/ts/simpleAllies"
+import { AllyRequests } from "../src/ts/simpleAllies"
 
 // Here's what the segmentData property of simpleAllies might look like when it has a request
 
@@ -8,10 +8,9 @@ interface ExampleSegmentData {
 
 const exampleSegmentData: ExampleSegmentData = {
     requests: {
-        [AllyRequestTypes.resource]: {
+        resource: {
             '1': {
-                ID: '1',
-                type: AllyRequestTypes.resource,
+                type: 'resource',
                 priority: 1,
                 roomName: "W1N1",
                 resourceType: RESOURCE_ENERGY,

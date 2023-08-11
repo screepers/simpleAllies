@@ -1,6 +1,6 @@
 // IMPORTANT: This code is just meant to show you how use the segment data. It probably execute
 
-import { AllyRequestTypes, ResourceRequest, simpleAllies } from "../src/ts/simpleAllies";
+import { ResourceRequest, simpleAllies } from "../src/ts/simpleAllies";
 
 // Example of fulfilling an ally resource request
 
@@ -15,7 +15,7 @@ export function loop() {
 
 function respondToResourceRequests() {
 
-    const resourceRequests = simpleAllies.allySegmentData.requests[AllyRequestTypes.resource]
+    const resourceRequests = simpleAllies.allySegmentData.requests.resource
     for (const ID in resourceRequests) {
 
         const request = resourceRequests[ID]

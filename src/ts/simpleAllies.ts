@@ -1,44 +1,22 @@
-import { maxSegmentsOpen } from "./constants"
-import { allySegmentID } from "./constants"
-import { allies } from "./constants"
+export const allies = [
+    'Player1',
+    'Player2',
+    'Player3',
+]
+// This is the conventional segment used for team communication
+export const allySegmentID = 90
+// This isn't in the docs for some reason, so we need to add it
+export const maxSegmentsOpen = 10
 
-
-export enum AllyRequestTypes {
-    /**
-     * Tell allies to send a specified amont of a resource
-     */
-    resource,
-    /**
-     * Tell allies to defend a room
-     */
-    defense,
-    /**
-     * Tell allies to attack a room
-     */
-    attack,
-    /**
-     * Tell allies how they should consider a player that isn't on your team
-     */
-    player,
-    /**
-     * Request worker creeps to a room. Can be for building, repairing or upgrading
-     */
-    work,
-    /**
-     * Tell allies about your economy so they can consider it in their calculations
-     */
-    econ,
-    /**
-     * Tell allies about notable rooms you recently scouted
-     */
-    room,
-}
-export const allyRequestTypes = Object.keys(
-    AllyRequestTypes,
-) as unknown as (keyof typeof AllyRequestTypes)[]
+type AllyRequestTypes =     'resource' |
+'defense' |
+'attack' |
+'player' |
+'work' |
+'econ' |
+'room'
 
 export interface AllyRequest {
-    ID: string
     type: AllyRequestTypes
 }
 
@@ -58,16 +36,13 @@ export interface ResourceRequest extends AllyRequest {
 
 export interface DefenseRequest extends AllyRequest {
     priority: number
-    roomName: string
 }
 
 export interface AttackRequest extends AllyRequest {
     priority: number
-    roomName: string
 }
 
 export interface PlayerRequest extends AllyRequest {
-    playerName: string
     /**
      * The amount you think your team should hate the player. Hate should probably affect combat aggression and targetting
      */
@@ -82,7 +57,6 @@ type WorkRequestType = 'build' | 'upgrade' | 'repair'
 
 export interface WorkRequest extends AllyRequest {
     priority: number
-    roomName: string
     workType: WorkRequestType
 }
 
@@ -104,7 +78,6 @@ export interface EconRequest extends AllyRequest {
 }
 
 export interface RoomRequest extends AllyRequest {
-    roomName: string
     /**
      * The player who owns this room. If there is no owner, the room probably isn't worth making a request about
      */
@@ -123,19 +96,15 @@ export interface RoomRequest extends AllyRequest {
     terminal: boolean
 }
 
-type IDKey<T> = {[ID: string]: T}
-
 export interface AllyRequests {
-
-    [AllyRequestTypes.resource]: IDKey<ResourceRequest>
-    [AllyRequestTypes.defense]: IDKey<DefenseRequest>
-    [AllyRequestTypes.attack]: IDKey<AttackRequest>
-    [AllyRequestTypes.player]: IDKey<PlayerRequest>
-    [AllyRequestTypes.work]: IDKey<WorkRequest>
-    [AllyRequestTypes.econ]: IDKey<EconRequest>
-    [AllyRequestTypes.room]: IDKey<RoomRequest>
+    resource: {[ID: string]: ResourceRequest}
+    defense: {[roomName: string]: DefenseRequest}
+    attack: {[roomName: string]: AttackRequest}
+    player: {[playerName: string]: PlayerRequest}
+    work: {[roomName: string]: WorkRequest}
+    econ: EconRequest
+    room: {[roomName: string]: RoomRequest}
 }
-
 /**
  * Having data we pass into the segment being an object allows us to send additional information outside of requests
  */
@@ -150,20 +119,23 @@ class SimpleAllies {
     /**
      * The intra-tick index for tracking IDs assigned to requests
      */
-    requestID: number = 0
+    private requestID: number
     myRequests: Partial<AllyRequests> = {}
     allySegmentData: SegmentData
     currentAlly: string
 
     /**
-     * To call before any requests are made. Configures some required values and gets ally requests
+     * To call before any requests are made or responded to. Configures some required values and gets ally requests
      */
     initRun() {
         // Reset the data of myRequests
-        for (const key in AllyRequestTypes) {
-            const type = key as keyof typeof AllyRequestTypes
-
-            this.myRequests[AllyRequestTypes[type]] = {}
+        this.myRequests = {
+            resource: {},
+            defense: {},
+            attack: {},
+            player: {},
+            work: {},
+            room: {},
         }
 
         this.requestID = 0
@@ -226,11 +198,10 @@ class SimpleAllies {
         priority: number = 0,
     ) {
 
-        const type = AllyRequestTypes.resource
+        const type = 'resource'
         const ID = this.newRequestID()
 
         this.myRequests[type][ID] = {
-            ID,
             type,
             priority,
             roomName,
@@ -245,14 +216,11 @@ class SimpleAllies {
         priority: number = 0,
     ) {
 
-        const type = AllyRequestTypes.defense
-        const ID = this.newRequestID()
+        const type = 'defense'
 
-        this.myRequests[type][ID] = {
-            ID,
+        this.myRequests[type][roomName] = {
             type,
             priority,
-            roomName,
         }
     }
 
@@ -261,26 +229,20 @@ class SimpleAllies {
         priority: number = 0,
     ) {
 
-        const type = AllyRequestTypes.attack
-        const ID = this.newRequestID()
+        const type = 'attack'
 
-        this.myRequests[type][ID] = {
-            ID,
+        this.myRequests[type][roomName] = {
             type,
             priority,
-            roomName,
         }
     }
 
     requestPlayer(playerName: string, hate?: number, lastAttackedBy?: number) {
 
-        const type = AllyRequestTypes.player
-        const ID = this.newRequestID()
+        const type = 'player'
 
-        this.myRequests[type][ID] = {
-            ID,
+        this.myRequests[type][playerName] = {
             type,
-            playerName,
             hate,
             lastAttackedBy,
         }
@@ -288,25 +250,20 @@ class SimpleAllies {
 
     requestWork(roomName: string, workType: WorkRequestType, priority: number = 0) {
 
-        const type = AllyRequestTypes.work
-        const ID = this.newRequestID()
+        const type = 'work'
 
-        this.myRequests[type][ID] = {
-            ID,
+        this.myRequests[type][roomName] = {
             type,
             priority,
-            roomName,
             workType,
         }
     }
 
     requestEcon(credits: number, energy: number, energyIncome?: number, mineralRooms?: { [key in MineralConstant]: number }) {
 
-        const type = AllyRequestTypes.econ
-        const ID = this.newRequestID()
+        const type = 'econ'
 
-        this.myRequests[type][ID] = {
-            ID,
+        this.myRequests[type] = {
             type,
             credits,
             energy,
@@ -317,13 +274,10 @@ class SimpleAllies {
 
     requestRoom(roomName: string, playerName: string, lastScout: number, rcl: number, energy: number, towers: number, avgRamprtHits: number, terminal: boolean) {
 
-        const type = AllyRequestTypes.room
-        const ID = this.newRequestID()
+        const type = 'room'
 
-        this.myRequests[type][ID] = {
-            ID,
+        this.myRequests[type][roomName] = {
             type,
-            roomName,
             playerName,
             lastScout,
             rcl,
