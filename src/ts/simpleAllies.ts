@@ -178,7 +178,7 @@ class SimpleAllies {
 
         this.currentAlly = allies[Game.time % allies.length]
         if (!this.currentAlly) {
-            throw Error('Failed to find an ally for simpleAllies, you probably have no allies')
+            throw Error('Failed to find an ally for simpleAllies, you probably have no allies :(')
             return
         }
 
@@ -188,7 +188,6 @@ class SimpleAllies {
 
         // Maybe the code didn't run last tick, so we didn't set a new read segment
         if (!RawMemory.foreignSegment) return
-        // Just in case... somehow
         if (RawMemory.foreignSegment.username !== this.currentAlly) return
 
         // Protect from errors as we try to get ally segment data
