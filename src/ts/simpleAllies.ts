@@ -16,11 +16,7 @@ export type AllyRequestTypes =     'resource' |
 'econ' |
 'room'
 
-export interface AllyRequest {
-    type: AllyRequestTypes
-}
-
-export interface ResourceRequest extends AllyRequest {
+export interface ResourceRequest {
     priority: number
     roomName: string
     resourceType: ResourceConstant
@@ -34,15 +30,15 @@ export interface ResourceRequest extends AllyRequest {
     terminal?: boolean
 }
 
-export interface DefenseRequest extends AllyRequest {
+export interface DefenseRequest {
     priority: number
 }
 
-export interface AttackRequest extends AllyRequest {
+export interface AttackRequest {
     priority: number
 }
 
-export interface PlayerRequest extends AllyRequest {
+export interface PlayerRequest {
     /**
      * The amount you think your team should hate the player. Hate should probably affect combat aggression and targetting
      */
@@ -55,12 +51,12 @@ export interface PlayerRequest extends AllyRequest {
 
 export type WorkRequestType = 'build' | 'upgrade' | 'repair'
 
-export interface WorkRequest extends AllyRequest {
+export interface WorkRequest {
     priority: number
     workType: WorkRequestType
 }
 
-export interface EconRequest extends AllyRequest {
+export interface EconRequest {
     /**
      * total credits the bot has. Should be 0 if there is no market on the server
      */
@@ -77,7 +73,7 @@ export interface EconRequest extends AllyRequest {
     mineralRooms?: { [key in MineralConstant]: number }
 }
 
-export interface RoomRequest extends AllyRequest {
+export interface RoomRequest {
     /**
      * The player who owns this room. If there is no owner, the room probably isn't worth making a request about
      */
@@ -188,102 +184,46 @@ class SimpleAllies {
 
     // Request methods
 
-    requestResource(
-        roomName: string,
-        resourceType: ResourceConstant,
-        amount: number,
-        terminal?: boolean,
-        priority: number = 0,
-    ) {
+    requestResource(args: ResourceRequest) {
 
-        const type = 'resource'
         const ID = this.newRequestID()
-
-        this.myRequests[type][ID] = {
-            type,
-            priority,
-            roomName,
-            resourceType,
-            amount,
-            terminal,
-        }
+        this.myRequests.resource[ID] = args
     }
 
     requestDefense(
         roomName: string,
-        priority: number = 0,
+        args: DefenseRequest
     ) {
 
-        const type = 'defense'
-
-        this.myRequests[type][roomName] = {
-            type,
-            priority,
-        }
+        this.myRequests.defense[roomName] = args
     }
 
     requestAttack(
         roomName: string,
-        priority: number = 0,
+        args: AttackRequest
     ) {
 
-        const type = 'attack'
-
-        this.myRequests[type][roomName] = {
-            type,
-            priority,
-        }
+        this.myRequests.attack[roomName] = args
     }
 
-    requestPlayer(playerName: string, hate?: number, lastAttackedBy?: number) {
+    requestPlayer(playerName: string, args: PlayerRequest) {
 
-        const type = 'player'
-
-        this.myRequests[type][playerName] = {
-            type,
-            hate,
-            lastAttackedBy,
-        }
+        this.myRequests.player[playerName] = args
     }
 
-    requestWork(roomName: string, workType: WorkRequestType, priority: number = 0) {
+    requestWork(roomName: string, args: WorkRequest) {
 
-        const type = 'work'
-
-        this.myRequests[type][roomName] = {
-            type,
-            priority,
-            workType,
-        }
+        this.myRequests.work[roomName] = args
     }
 
-    requestEcon(credits: number, energy: number, energyIncome?: number, mineralRooms?: { [key in MineralConstant]: number }) {
+    requestEcon(args: EconRequest) {
 
-        const type = 'econ'
-
-        this.myRequests[type] = {
-            type,
-            credits,
-            energy,
-            energyIncome,
-            mineralRooms,
-        }
+        this.myRequests.econ = args
     }
 
-    requestRoom(roomName: string, playerName: string, lastScout: number, rcl: number, energy: number, towers: number, avgRamprtHits: number, terminal: boolean) {
+    requestRoom(roomName: string, args: RoomRequest) {
 
-        const type = 'room'
-
-        this.myRequests[type][roomName] = {
-            type,
-            playerName,
-            lastScout,
-            rcl,
-            energy,
-            towers,
-            avgRamprtHits,
-            terminal,
-        }
+        this.myRequests.room[roomName] = args
     }
 
     private newRequestID() {

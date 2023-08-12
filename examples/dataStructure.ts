@@ -10,7 +10,6 @@ const exampleSegmentData: ExampleSegmentData = {
     requests: {
         resource: {
             '1': {
-                type: 'resource',
                 priority: 1,
                 roomName: "W1N1",
                 resourceType: RESOURCE_ENERGY,
