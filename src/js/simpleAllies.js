@@ -10,15 +10,6 @@ exports.allies = [
 exports.allySegmentID = 90;
 // This isn't in the docs for some reason, so we need to add it
 exports.maxSegmentsOpen = 10;
-const allyRequestTypes = [
-    'resource',
-    'defense',
-    'attack',
-    'player',
-    'work',
-    'econ',
-    'room',
-];
 class SimpleAllies {
     /**
      * The intra-tick index for tracking IDs assigned to requests
@@ -47,11 +38,10 @@ class SimpleAllies {
      * Try to get segment data from our current ally. If successful, assign to the instane
      */
     readAllySegment() {
-        this.currentAlly = exports.allies[Game.time % exports.allies.length];
-        if (!this.currentAlly) {
-            throw Error('Failed to find an ally for simpleAllies, you probably have no allies :(');
-            return;
+        if (!exports.allies.length) {
+            throw Error("Failed to find an ally for simpleAllies, you probably have none :(");
         }
+        this.currentAlly = exports.allies[Game.time % exports.allies.length];
         // Make a request to read the data of the next ally in the list, for next tick
         const nextAllyName = exports.allies[(Game.time + 1) % exports.allies.length];
         RawMemory.setActiveForeignSegment(nextAllyName, exports.allySegmentID);
@@ -83,70 +73,27 @@ class SimpleAllies {
         RawMemory.setPublicSegments([exports.allySegmentID]);
     }
     // Request methods
-    requestResource(roomName, resourceType, amount, terminal, priority = 0) {
-        const type = 'resource';
+    requestResource(args) {
         const ID = this.newRequestID();
-        this.myRequests[type][ID] = {
-            type,
-            priority,
-            roomName,
-            resourceType,
-            amount,
-            terminal,
-        };
+        this.myRequests.resource[ID] = args;
     }
-    requestDefense(roomName, priority = 0) {
-        const type = 'defense';
-        this.myRequests[type][roomName] = {
-            type,
-            priority,
-        };
+    requestDefense(roomName, args) {
+        this.myRequests.defense[roomName] = args;
     }
-    requestAttack(roomName, priority = 0) {
-        const type = 'attack';
-        this.myRequests[type][roomName] = {
-            type,
-            priority,
-        };
+    requestAttack(roomName, args) {
+        this.myRequests.attack[roomName] = args;
     }
-    requestPlayer(playerName, hate, lastAttackedBy) {
-        const type = 'player';
-        this.myRequests[type][playerName] = {
-            type,
-            hate,
-            lastAttackedBy,
-        };
+    requestPlayer(playerName, args) {
+        this.myRequests.player[playerName] = args;
     }
-    requestWork(roomName, workType, priority = 0) {
-        const type = 'work';
-        this.myRequests[type][roomName] = {
-            type,
-            priority,
-            workType,
-        };
+    requestWork(roomName, args) {
+        this.myRequests.work[roomName] = args;
     }
-    requestEcon(credits, energy, energyIncome, mineralRooms) {
-        const type = 'econ';
-        this.myRequests[type] = {
-            type,
-            credits,
-            energy,
-            energyIncome,
-            mineralRooms,
-        };
+    requestEcon(args) {
+        this.myRequests.econ = args;
     }
-    requestRoom(roomName, playerName, lastScout, rcl, energy, towers, avgRamprtHits, terminal) {
-        const type = 'room';
-        this.myRequests[type][roomName] = {
-            type,
-            playerName,
-            lastScout,
-            rcl,
-            energy,
-            towers,
-            avgRamprtHits,
-            terminal,
-        };
+    requestRoom(roomName, args) {
+        this.myRequests.room[roomName] = args;
     }
     newRequestID() {
         return (this.requestID += 1).toString();
