@@ -94,8 +94,5 @@ class SimpleAllies {
     requestRoom(args) {
         this.myRequests.room.push(args);
     }
-    newRequestID() {
-        return (this.requestID += 1).toString();
-    }
 }
 exports.simpleAllies = new SimpleAllies();
