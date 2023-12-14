@@ -17,6 +17,9 @@ export type AllyRequestTypes =     'resource' |
 'room'
 
 export interface ResourceRequest {
+    /**
+     * 0-1 where 1 is highest consideration
+     */
     priority: number
     roomName: string
     resourceType: ResourceConstant
@@ -32,18 +35,24 @@ export interface ResourceRequest {
 
 export interface DefenseRequest {
     roomName: string
+    /**
+     * 0-1 where 1 is highest consideration
+     */
     priority: number
 }
 
 export interface AttackRequest {
     roomName: string
+    /**
+     * 0-1 where 1 is highest consideration
+     */
     priority: number
 }
 
 export interface PlayerRequest {
     playerName: string
     /**
-     * The amount you think your team should hate the player. Hate should probably affect combat aggression and targetting
+     * 0-1 where 1 is highest consideration. How much you think your team should hate the player. Should probably affect combat aggression and targetting
      */
     hate?: number
     /**
@@ -56,6 +65,9 @@ export type WorkRequestType = 'build' | 'upgrade' | 'repair'
 
 export interface WorkRequest {
     roomName: string
+    /**
+     * 0-1 where 1 is highest consideration
+     */
     priority: number
     workType: WorkRequestType
 }

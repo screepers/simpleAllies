@@ -17,7 +17,7 @@
         "strictNullChecks": false,
         "esModuleInterop": true,
         "sourceMap": false,
-        "skipLibCheck": true
+        "skipLibCheck": true,
     },
     "include": ["./src/ts"],
     /* "exclude": ["node_modules", "src/js", "docs"] */
