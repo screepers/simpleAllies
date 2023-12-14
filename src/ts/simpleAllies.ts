@@ -120,10 +120,6 @@ export interface SegmentData {
 }
 
 class SimpleAllies {
-    /**
-     * The intra-tick index for tracking IDs assigned to requests
-     */
-    private requestID: number
     myRequests: AllyRequests = {}
     allySegmentData: SegmentData
     currentAlly: string
@@ -141,7 +137,6 @@ class SimpleAllies {
             work: [],
             room: [],
         }
-        this.requestID = 0
 
         this.readAllySegment()
     }

@@ -11,10 +11,6 @@ exports.allySegmentID = 90;
 // This isn't in the docs for some reason, so we need to add it
 exports.maxSegmentsOpen = 10;
 class SimpleAllies {
-    /**
-     * The intra-tick index for tracking IDs assigned to requests
-     */
-    requestID;
     myRequests = {};
     allySegmentData;
     currentAlly;
@@ -31,7 +27,6 @@ class SimpleAllies {
             work: [],
             room: [],
         };
-        this.requestID = 0;
         this.readAllySegment();
     }
     /**
