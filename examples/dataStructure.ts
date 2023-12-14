@@ -8,14 +8,14 @@ interface ExampleSegmentData {
 
 const exampleSegmentData: ExampleSegmentData = {
     requests: {
-        resource: {
-            '1': {
+        resource: [
+            {
                 priority: 1,
                 roomName: "W1N1",
                 resourceType: RESOURCE_ENERGY,
                 amount: 1,
                 terminal: true,
             }
-        }
+        ]
     }
 }

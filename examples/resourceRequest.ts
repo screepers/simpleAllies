@@ -15,17 +15,15 @@ export function loop() {
 
 function respondToResourceRequests() {
 
-    const resourceRequests = simpleAllies.allySegmentData.requests.resource
-    for (const ID in resourceRequests) {
+    // Other players want resources, let's send them some!
 
-        const request = resourceRequests[ID]
+    const resourceRequests = simpleAllies.allySegmentData.requests.resource
+    if (!resourceRequests) return
+    
+    for (const request of resourceRequests) {
 
         // Respond to the request
         sendResource(request)
-
-        // Now that we've fulfilled the request to the best of our ability...
-        // Efficiently remove the request so we don't respond to it again. For example, in another room
-        delete resourceRequests[ID]
     }
 }
 
