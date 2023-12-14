@@ -15,7 +15,11 @@ export function loop() {
 
 function respondToResourceRequests() {
 
+    // Other players want resources, let's send them some!
+
     const resourceRequests = simpleAllies.allySegmentData.requests.resource
+    if (!resourceRequests) return
+    
     for (const request of resourceRequests) {
 
         // Respond to the request

@@ -101,13 +101,13 @@ export interface RoomRequest {
 }
 
 export interface AllyRequests {
-    resource: ResourceRequest[]
-    defense: DefenseRequest[]
-    attack: AttackRequest[]
-    player: PlayerRequest[]
-    work: WorkRequest[]
-    econ: EconRequest
-    room: RoomRequest[]
+    resource?: ResourceRequest[]
+    defense?: DefenseRequest[]
+    attack?: AttackRequest[]
+    player?: PlayerRequest[]
+    work?: WorkRequest[]
+    econ?: EconRequest
+    room?: RoomRequest[]
 }
 /**
  * Having data we pass into the segment being an object allows us to send additional information outside of requests
@@ -124,7 +124,7 @@ class SimpleAllies {
      * The intra-tick index for tracking IDs assigned to requests
      */
     private requestID: number
-    myRequests: Partial<AllyRequests> = {}
+    myRequests: AllyRequests = {}
     allySegmentData: SegmentData
     currentAlly: string
 
@@ -229,11 +229,6 @@ class SimpleAllies {
     requestRoom(args: RoomRequest) {
 
         this.myRequests.room.push(args)
-    }
-
-    private newRequestID() {
-
-        return (this.requestID += 1).toString()
     }
 }
 
