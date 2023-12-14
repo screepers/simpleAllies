@@ -24,12 +24,12 @@ class SimpleAllies {
     initRun() {
         // Reset the data of myRequests
         this.myRequests = {
-            resource: {},
-            defense: {},
-            attack: {},
-            player: {},
-            work: {},
-            room: {},
+            resource: [],
+            defense: [],
+            attack: [],
+            player: [],
+            work: [],
+            room: [],
         };
         this.requestID = 0;
         this.readAllySegment();
@@ -74,26 +74,25 @@ class SimpleAllies {
     }
     // Request methods
     requestResource(args) {
-        const ID = this.newRequestID();
-        this.myRequests.resource[ID] = args;
+        this.myRequests.resource.push(args);
     }
-    requestDefense(roomName, args) {
-        this.myRequests.defense[roomName] = args;
+    requestDefense(args) {
+        this.myRequests.defense.push(args);
     }
-    requestAttack(roomName, args) {
-        this.myRequests.attack[roomName] = args;
+    requestAttack(args) {
+        this.myRequests.attack.push(args);
     }
-    requestPlayer(playerName, args) {
-        this.myRequests.player[playerName] = args;
+    requestPlayer(args) {
+        this.myRequests.player.push(args);
     }
-    requestWork(roomName, args) {
-        this.myRequests.work[roomName] = args;
+    requestWork(args) {
+        this.myRequests.work.push(args);
     }
     requestEcon(args) {
         this.myRequests.econ = args;
     }
-    requestRoom(roomName, args) {
-        this.myRequests.room[roomName] = args;
+    requestRoom(args) {
+        this.myRequests.room.push(args);
     }
     newRequestID() {
         return (this.requestID += 1).toString();
