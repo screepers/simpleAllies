@@ -79,7 +79,7 @@ class SimpleAllies {
      * @param {string} args.roomName
      * @param {ResourceConstant} args.resourceType
      * @param {number} args.amount - How much they want of the resource. If the responder sends only a portion of what you ask for, that's fine
-     * @param {boolean} [terminal] - If the bot has no terminal, allies should instead haul the resources to us
+     * @param {boolean} [args.terminal] - If the bot has no terminal, allies should instead haul the resources to us
      */
     requestResource(args) {
         this.myRequests.resource.push(args);
