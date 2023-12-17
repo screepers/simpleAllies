@@ -121,6 +121,26 @@ export interface AllyRequests {
     econ?: EconRequest
     room?: RoomRequest[]
 }
+
+interface DefenseResponse {
+    roomName: string
+}
+
+interface AttackResponse {
+    roomName: string
+}
+
+interface WorkResponse {
+    roomName: string
+}
+
+interface AllyResponses {
+    // resource?: ResourceRequest[]
+    defense?: DefenseResponse[]
+    attack?: AttackResponse[]
+    work?: WorkResponse[]
+}
+
 /**
  * Having data we pass into the segment being an object allows us to send additional information outside of requests
  */
@@ -133,6 +153,7 @@ export interface SegmentData {
 
 class SimpleAllies {
     myRequests: AllyRequests = {}
+    myResponses: AllyResponses = {}
     allySegmentData: SegmentData
     currentAlly: string
 
@@ -148,6 +169,11 @@ class SimpleAllies {
             player: [],
             work: [],
             room: [],
+        }
+        this.myResponses = {
+            defense: [],
+            attack: [],
+            work: [],
         }
 
         this.readAllySegment()
