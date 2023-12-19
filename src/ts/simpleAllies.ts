@@ -144,7 +144,7 @@ interface AllyResponses {
 /**
  * Having data we pass into the segment being an object allows us to send additional information outside of requests
  */
-export interface SegmentData {
+export interface SimpleAlliesSegment {
     /**
      * Requests of the new system
      */
@@ -154,7 +154,7 @@ export interface SegmentData {
 class SimpleAllies {
     myRequests: AllyRequests = {}
     myResponses: AllyResponses = {}
-    allySegmentData: SegmentData
+    allySegmentData: SimpleAlliesSegment
     currentAlly: string
 
     /**
@@ -215,7 +215,7 @@ class SimpleAllies {
             throw Error('Too many segments open: simpleAllies')
         }
 
-        const newSegmentData: SegmentData = {
+        const newSegmentData: SimpleAlliesSegment = {
             requests: this.myRequests as AllyRequests
         }
 
