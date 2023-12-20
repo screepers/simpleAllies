@@ -1,15 +1,24 @@
 "use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.simpleAllies = exports.maxSegmentsOpen = exports.allySegmentID = exports.allies = void 0;
-exports.allies = [
+
+const allies = [
     'Player1',
     'Player2',
     'Player3',
 ];
 // This is the conventional segment used for team communication
-exports.allySegmentID = 90;
+const allySegmentID = 90;
+
 // This isn't in the docs for some reason, so we need to add it
-exports.maxSegmentsOpen = 10;
+const maxSegmentsOpen = 10;
+
+//
+const EFunnelGoalType = {
+    GCL: 0,
+    RCL7: 1,
+    RCL8: 2
+};
+
+//
 class SimpleAllies {
     myRequests = {};
     allySegmentData;
@@ -26,6 +35,7 @@ class SimpleAllies {
             attack: [],
             player: [],
             work: [],
+            funnel: [],
             room: [],
         };
         this.readAllySegment();
@@ -127,6 +137,17 @@ class SimpleAllies {
     }
     
     /**
+     * Request energy to a room for a purpose of making upgrading faster.
+     * @param {Object} args - a request object
+     * @param {number} args.maxAmount - Amount of energy needed. Should be equal to energy that needs to be put into controller for achieving goal.
+     * @param {EFunnelGoalType.GCL | EFunnelGoalType.RCL7 | EFunnelGoalType.RCL8} args.goalType - What energy will be spent on. Room receiving energy should focus solely on achieving the goal.
+     * @param {string} [args.roomName] - Room to which energy should be sent. If undefined resources can be sent to any of requesting player's rooms.
+     */
+    requestFunnel(args) {
+        this.myRequests.funnel.push(args);
+    }
+    
+    /**
      * Share how your bot is doing economically
      * @param {Object} args - a request object
      * @param {number} args.credits - total credits the bot has. Should be 0 if there is no market on the server
@@ -154,4 +175,10 @@ class SimpleAllies {
         this.myRequests.room.push(args);
     }
 }
-exports.simpleAllies = new SimpleAllies();
+
+module.exports = {
+    allies: allies,
+    allySegmentID: allySegmentID,
+    EFunnelGoalType: EFunnelGoalType,
+    simpleAllies: new SimpleAllies()
+};
