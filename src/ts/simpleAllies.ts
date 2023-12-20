@@ -61,7 +61,7 @@ export interface PlayerRequest {
     lastAttackedBy?: number
 }
 
-export type WorkRequestType = 'build' | 'upgrade' | 'repair'
+export type WorkRequestType = 'build' | 'repair'
 
 export interface WorkRequest {
     roomName: string
