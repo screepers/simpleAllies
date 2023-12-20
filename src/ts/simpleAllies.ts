@@ -5,16 +5,17 @@ export const allies = [
 ]
 // This is the conventional segment used for team communication
 export const allySegmentID = 90
-// This isn't in the docs for some reason, so we need to add it
-export const maxSegmentsOpen = 10
 
-export type AllyRequestTypes =     'resource' |
-'defense' |
-'attack' |
-'player' |
-'work' |
-'econ' |
-'room'
+// This isn't in the docs for some reason, so we need to add it
+const maxSegmentsOpen = 10
+
+export type AllyRequestTypes = 'resource' |
+    'defense' |
+    'attack' |
+    'player' |
+    'work' |
+    'econ' |
+    'room'
 
 export interface ResourceRequest {
     /**
@@ -72,6 +73,27 @@ export interface WorkRequest {
     workType: WorkRequestType
 }
 
+export const enum FunnelGoal {
+    GCL = 0,
+    RCL7 = 1,
+    RCL8 = 2
+}
+
+export interface FunnelRequest {
+    /**
+     * Amount of energy needed. Should be equal to energy that needs to be put into controller for achieving goal.
+     */
+    maxAmount: number;
+    /**
+     * What energy will be spent on. Room receiving energy should focus solely on achieving the goal.
+     */
+    goalType: FunnelGoal;
+    /**
+     * Room to which energy should be sent. If undefined resources can be sent to any of requesting player's rooms.
+     */
+    roomName?: string;
+}
+
 export interface EconRequest {
     /**
      * total credits the bot has. Should be 0 if there is no market on the server
@@ -118,6 +140,7 @@ export interface AllyRequests {
     attack?: AttackRequest[]
     player?: PlayerRequest[]
     work?: WorkRequest[]
+    funnel?: FunnelRequest[];
     econ?: EconRequest
     room?: RoomRequest[]
 }
@@ -168,6 +191,7 @@ class SimpleAllies {
             attack: [],
             player: [],
             work: [],
+            funnel: [],
             room: [],
         }
         this.myResponses = {
@@ -226,41 +250,34 @@ class SimpleAllies {
     // Request methods
 
     requestResource(args: ResourceRequest) {
-
         this.myRequests.resource.push(args)
     }
 
-    requestDefense(
-        args: DefenseRequest
-    ) {
-
+    requestDefense(args: DefenseRequest) {
         this.myRequests.defense.push(args)
     }
 
-    requestAttack(
-        args: AttackRequest
-    ) {
-
+    requestAttack(args: AttackRequest) {
         this.myRequests.attack.push(args)
     }
 
     requestPlayer(args: PlayerRequest) {
-
         this.myRequests.player.push(args)
     }
 
     requestWork(args: WorkRequest) {
-
         this.myRequests.work.push(args)
     }
 
-    requestEcon(args: EconRequest) {
+    requestFunnel(args: FunnelRequest) {
+        this.myRequests.funnel.push(args)
+    }
 
+    requestEcon(args: EconRequest) {
         this.myRequests.econ = args
     }
 
     requestRoom(args: RoomRequest) {
-
         this.myRequests.room.push(args)
     }
 }
