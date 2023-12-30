@@ -198,12 +198,20 @@ class SimpleAllies {
     initRun() {
         // Reset the data of myRequests
         this.myRequests = {
-            ...requestsSekelton,
             updated: Game.time,
+            resource: [],
+            defense: [],
+            attack: [],
+            player: [],
+            work: [],
+            funnel: [],
+            room: [],
         }
         this.myResponses = {
-            ...responsesSkeleton,
             updated: Game.time,
+            defense: [],
+            attack: [],
+            work: [],
         }
 
         this.readAllySegment()
