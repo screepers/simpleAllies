@@ -24,6 +24,10 @@ export interface ResourceRequest {
      * If the bot has no terminal, allies should instead haul the resources to us
      */
     terminal?: boolean
+    /**
+     * Tick after which the request should be ignored. If your bot crashes, or stops updating requests for some other reason, this is a safety mechanism.
+     */
+    timeout?: number;
 }
 
 export interface DefenseRequest {
@@ -32,6 +36,10 @@ export interface DefenseRequest {
      * 0-1 where 1 is highest consideration
      */
     priority: number
+    /**
+     * Tick after which the request should be ignored. If your bot crashes, or stops updating requests for some other reason, this is a safety mechanism.
+     */
+    timeout?: number;
 }
 
 export interface AttackRequest {
@@ -40,6 +48,10 @@ export interface AttackRequest {
      * 0-1 where 1 is highest consideration
      */
     priority: number
+    /**
+     * Tick after which the request should be ignored. If your bot crashes, or stops updating requests for some other reason, this is a safety mechanism.
+     */
+    timeout?: number;
 }
 
 export interface PlayerRequest {
@@ -52,6 +64,10 @@ export interface PlayerRequest {
      * The last time this player has attacked you
      */
     lastAttackedBy?: number
+    /**
+     * Tick after which the request should be ignored. If your bot crashes, or stops updating requests for some other reason, this is a safety mechanism.
+     */
+    timeout?: number;
 }
 
 export type WorkRequestType = 'build' | 'repair'
@@ -63,6 +79,10 @@ export interface WorkRequest {
      */
     priority: number
     workType: WorkRequestType
+    /**
+     * Tick after which the request should be ignored. If your bot crashes, or stops updating requests for some other reason, this is a safety mechanism.
+     */
+    timeout?: number;
 }
 
 export const enum FunnelGoal {
@@ -87,7 +107,7 @@ export interface FunnelRequest {
     /**
      * Tick after which the request should be ignored. If your bot crashes, or stops updating requests for some other reason, this is a safety mechanism.
      */
-    timeout?: number
+    timeout?: number;
 }
 
 export interface EconInfo {
