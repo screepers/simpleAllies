@@ -127,6 +127,7 @@ export interface RoomRequest {
 }
 
 export interface AllyRequests {
+    updated: number,
     resource: ResourceRequest[]
     defense: DefenseRequest[]
     attack: AttackRequest[]
@@ -150,6 +151,7 @@ export interface WorkResponse {
 }
 
 export interface AllyResponses {
+    updated: number,
     // resource?: ResourceRequest[]
     defense: DefenseResponse[]
     attack: AttackResponse[]
@@ -167,6 +169,7 @@ export interface SimpleAlliesSegment {
 }
 
 const requestsSekelton: AllyRequests = {
+    updated: 0,
     resource: [],
     defense: [],
     attack: [],
@@ -177,6 +180,7 @@ const requestsSekelton: AllyRequests = {
 }
 
 const responsesSkeleton: AllyResponses = {
+    updated: 0,
     defense: [],
     attack: [],
     work: [],
@@ -193,8 +197,14 @@ class SimpleAllies {
      */
     initRun() {
         // Reset the data of myRequests
-        this.myRequests = {...requestsSekelton}
-        this.myResponses = {...responsesSkeleton}
+        this.myRequests = {
+            ...requestsSekelton,
+            updated: Game.time,
+        }
+        this.myResponses = {
+            ...responsesSkeleton,
+            updated: Game.time,
+        }
 
         this.readAllySegment()
     }
