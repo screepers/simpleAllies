@@ -110,26 +110,6 @@ export interface FunnelRequest {
     timeout?: number;
 }
 
-export interface EconInfo {
-    /**
-     * total credits the bot has. Should be 0 if there is no market on the server
-     */
-    credits: number
-    /**
-     * the maximum amount of energy the bot is willing to share with allies. Should never be more than the amount of energy the bot has in storing structures
-     */
-    sharableEnergy: number
-    /**
-     * The average energy income the bot has calculated over the last 100 ticks
-     * Optional, as some bots might not be able to calculate this easily.
-     */
-    energyIncome?: number
-    /**
-     * The number of mineral nodes the bot has access to, probably used to inform expansion
-     */
-    mineralNodes?: Partial<Record<MineralConstant, number>>
-}
-
 export interface RoomRequest {
     roomName: string
     /**
@@ -148,6 +128,30 @@ export interface RoomRequest {
     towers: number
     avgRamprtHits: number
     terminal: boolean
+    /**
+     * Tick after which the request should be ignored. If your bot crashes, or stops updating requests for some other reason, this is a safety mechanism.
+     */
+    timeout?: number;
+}
+
+export interface EconInfo {
+    /**
+     * total credits the bot has. Should be 0 if there is no market on the server
+     */
+    credits: number
+    /**
+     * the maximum amount of energy the bot is willing to share with allies. Should never be more than the amount of energy the bot has in storing structures
+     */
+    sharableEnergy: number
+    /**
+     * The average energy income the bot has calculated over the last 100 ticks
+     * Optional, as some bots might not be able to calculate this easily.
+     */
+    energyIncome?: number
+    /**
+     * The number of mineral nodes the bot has access to, probably used to inform expansion
+     */
+    mineralNodes?: Partial<Record<MineralConstant, number>>
 }
 
 export interface AllyRequests {
