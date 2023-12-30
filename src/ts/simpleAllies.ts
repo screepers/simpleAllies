@@ -7,15 +7,7 @@ export const allies = [
 export const allySegmentID = 90
 
 // This isn't in the docs for some reason, so we need to add it
-const maxSegmentsOpen = 10
-
-export type AllyRequestTypes = 'resource' |
-    'defense' |
-    'attack' |
-    'player' |
-    'work' |
-    'econ' |
-    'room'
+export const maxSegmentsOpen = 10
 
 export interface ResourceRequest {
     /**
@@ -155,7 +147,7 @@ export interface SimpleAlliesSegment {
     requests: AllyRequests
 }
 
-const emptyRequest: AllyRequests = {
+const requestsSekelton: AllyRequests = {
     resource: [],
     defense: [],
     attack: [],
@@ -167,26 +159,18 @@ const emptyRequest: AllyRequests = {
 
 
 class SimpleAllies {
-    myRequests: AllyRequests = {...emptyRequest}
+    myRequests: AllyRequests = {...requestsSekelton}
     // Partial since we can't trust others to not omit fields
-    // we want to make sure we check their existance
+    // we want to make sure we check their existence
     allySegmentData: Partial<SimpleAlliesSegment> = {}
-    currentAlly: string
+    currentAlly?: string
 
     /**
      * To call before any requests are made or responded to. Configures some required values and gets ally requests
      */
     initRun() {
         // Reset the data of myRequests
-        this.myRequests = {
-            resource: [],
-            defense: [],
-            attack: [],
-            player: [],
-            work: [],
-            funnel: [],
-            room: [],
-        }
+        this.myRequests = {...requestsSekelton}
 
         this.readAllySegment()
     }
