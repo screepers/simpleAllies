@@ -7,15 +7,7 @@ export const allies = [
 export const allySegmentID = 90
 
 // This isn't in the docs for some reason, so we need to add it
-const maxSegmentsOpen = 10
-
-export type AllyRequestTypes = 'resource' |
-    'defense' |
-    'attack' |
-    'player' |
-    'work' |
-    'econ' |
-    'room'
+export const maxSegmentsOpen = 10
 
 export interface ResourceRequest {
     /**
@@ -135,33 +127,33 @@ export interface RoomRequest {
 }
 
 export interface AllyRequests {
-    resource?: ResourceRequest[]
-    defense?: DefenseRequest[]
-    attack?: AttackRequest[]
-    player?: PlayerRequest[]
-    work?: WorkRequest[]
-    funnel?: FunnelRequest[];
+    resource: ResourceRequest[]
+    defense: DefenseRequest[]
+    attack: AttackRequest[]
+    player: PlayerRequest[]
+    work: WorkRequest[]
+    funnel: FunnelRequest[]
     econ?: EconRequest
-    room?: RoomRequest[]
+    room: RoomRequest[]
 }
 
-interface DefenseResponse {
+export interface DefenseResponse {
     roomName: string
 }
 
-interface AttackResponse {
+export interface AttackResponse {
     roomName: string
 }
 
-interface WorkResponse {
+export interface WorkResponse {
     roomName: string
 }
 
-interface AllyResponses {
+export interface AllyResponses {
     // resource?: ResourceRequest[]
-    defense?: DefenseResponse[]
-    attack?: AttackResponse[]
-    work?: WorkResponse[]
+    defense: DefenseResponse[]
+    attack: AttackResponse[]
+    work: WorkResponse[]
 }
 
 /**
@@ -174,37 +166,41 @@ export interface SimpleAlliesSegment {
     requests: AllyRequests
 }
 
+const requestsSekelton: AllyRequests = {
+    resource: [],
+    defense: [],
+    attack: [],
+    player: [],
+    work: [],
+    funnel: [],
+    room: [],
+}
+
+const responsesSkeleton: AllyResponses = {
+    defense: [],
+    attack: [],
+    work: [],
+}
+
 class SimpleAllies {
-    myRequests: AllyRequests = {}
-    myResponses: AllyResponses = {}
-    allySegmentData: SimpleAlliesSegment
-    currentAlly: string
+    myRequests: AllyRequests = {...requestsSekelton}
+    myResponses: AllyResponses = {...responsesSkeleton}
+    allySegmentData: Partial<SimpleAlliesSegment> = {}
+    currentAlly?: string
 
     /**
      * To call before any requests are made or responded to. Configures some required values and gets ally requests
      */
     initRun() {
         // Reset the data of myRequests
-        this.myRequests = {
-            resource: [],
-            defense: [],
-            attack: [],
-            player: [],
-            work: [],
-            funnel: [],
-            room: [],
-        }
-        this.myResponses = {
-            defense: [],
-            attack: [],
-            work: [],
-        }
+        this.myRequests = {...requestsSekelton}
+        this.myResponses = {...responsesSkeleton}
 
         this.readAllySegment()
     }
 
     /**
-     * Try to get segment data from our current ally. If successful, assign to the instane
+     * Try to get segment data from our current ally. If successful, assign to the instance
      */
     readAllySegment() {
         if (!allies.length) {
