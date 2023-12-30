@@ -90,7 +90,7 @@ export interface FunnelRequest {
     timeout?: number
 }
 
-export interface EconRequest {
+export interface EconInfo {
     /**
      * total credits the bot has. Should be 0 if there is no market on the server
      */
@@ -107,7 +107,7 @@ export interface EconRequest {
     /**
      * The number of mineral nodes the bot has access to, probably used to inform expansion
      */
-    mineralNodes?: { [key in MineralConstant]: number }
+    mineralNodes?: Partial<Record<MineralConstant, number>>
 }
 
 export interface RoomRequest {
@@ -136,8 +136,7 @@ export interface AllyRequests {
     attack: AttackRequest[]
     player: PlayerRequest[]
     work: WorkRequest[]
-    funnel: FunnelRequest[];
-    econ?: EconRequest
+    funnel: FunnelRequest[]
     room: RoomRequest[]
 }
 
@@ -145,36 +144,36 @@ export interface AllyRequests {
  * Having data we pass into the segment being an object allows us to send additional information outside of requests
  */
 export interface SimpleAlliesSegment {
-    /**
-     * Requests of the new system
-     */
-    requests: AllyRequests
-}
-
-const requestsSekelton: AllyRequests = {
-    resource: [],
-    defense: [],
-    attack: [],
-    player: [],
-    work: [],
-    funnel: [],
-    room: [],
+    requests?: AllyRequests
+    econ?: EconInfo
 }
 
 
 class SimpleAllies {
-    myRequests: AllyRequests = {...requestsSekelton}
-    // Partial since we can't trust others to not omit fields
-    // we want to make sure we check their existence
-    allySegmentData: Partial<SimpleAlliesSegment> = {}
+    private myRequests: AllyRequests = {
+        resource: [],
+        defense: [],
+        attack: [],
+        player: [],
+        work: [],
+        funnel: [],
+        room: []
+    }
+    private myEconInfo?: EconInfo
+    allySegmentData: SimpleAlliesSegment = {}
     currentAlly?: string
 
     /**
      * To call before any requests are made or responded to. Configures some required values and gets ally requests
      */
     initRun() {
-        // Reset the data of myRequests
-        this.myRequests = {...requestsSekelton}
+        // reset my requests
+        for (let key in this.myRequests) {
+            const requestType = key as keyof AllyRequests
+            this.myRequests[requestType].length = 0
+        }
+        // reset econ info
+        this.myEconInfo = undefined
 
         this.readAllySegment()
     }
@@ -182,7 +181,7 @@ class SimpleAllies {
     /**
      * Try to get segment data from our current ally. If successful, assign to the instane
      */
-    readAllySegment() {
+    private readAllySegment() {
         if (!allies.length) {
             throw Error("Failed to find an ally for simpleAllies, you probably have none :(")
         }
@@ -216,7 +215,8 @@ class SimpleAllies {
         }
 
         const newSegmentData: SimpleAlliesSegment = {
-            requests: this.myRequests as AllyRequests
+            requests: this.myRequests,
+            econ: this.myEconInfo
         }
 
         RawMemory.segments[allySegmentID] = JSON.stringify(newSegmentData)
@@ -249,12 +249,14 @@ class SimpleAllies {
         this.myRequests.funnel.push(args)
     }
 
-    requestEcon(args: EconRequest) {
-        this.myRequests.econ = args
-    }
-
     requestRoom(args: RoomRequest) {
         this.myRequests.room.push(args)
+    }
+
+    //
+
+    setEconInfo(args: EconInfo) {
+        this.myEconInfo = args
     }
 }
 
