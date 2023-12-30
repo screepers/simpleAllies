@@ -84,6 +84,10 @@ export interface FunnelRequest {
      * Room to which energy should be sent. If undefined resources can be sent to any of requesting player's rooms.
      */
     roomName?: string;
+    /**
+     * Tick after which the request should be ignored. If your bot crashes, or stops updating requests for some other reason, this is a safety mechanism.
+     */
+    timeout?: number
 }
 
 export interface EconRequest {
