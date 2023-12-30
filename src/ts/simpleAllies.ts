@@ -135,33 +135,14 @@ export interface RoomRequest {
 }
 
 export interface AllyRequests {
-    resource?: ResourceRequest[]
-    defense?: DefenseRequest[]
-    attack?: AttackRequest[]
-    player?: PlayerRequest[]
-    work?: WorkRequest[]
-    funnel?: FunnelRequest[];
+    resource: ResourceRequest[]
+    defense: DefenseRequest[]
+    attack: AttackRequest[]
+    player: PlayerRequest[]
+    work: WorkRequest[]
+    funnel: FunnelRequest[];
     econ?: EconRequest
-    room?: RoomRequest[]
-}
-
-interface DefenseResponse {
-    roomName: string
-}
-
-interface AttackResponse {
-    roomName: string
-}
-
-interface WorkResponse {
-    roomName: string
-}
-
-interface AllyResponses {
-    // resource?: ResourceRequest[]
-    defense?: DefenseResponse[]
-    attack?: AttackResponse[]
-    work?: WorkResponse[]
+    room: RoomRequest[]
 }
 
 /**
@@ -174,10 +155,22 @@ export interface SimpleAlliesSegment {
     requests: AllyRequests
 }
 
+const emptyRequest: AllyRequests = {
+    resource: [],
+    defense: [],
+    attack: [],
+    player: [],
+    work: [],
+    funnel: [],
+    room: [],
+}
+
+
 class SimpleAllies {
-    myRequests: AllyRequests = {}
-    myResponses: AllyResponses = {}
-    allySegmentData: SimpleAlliesSegment
+    myRequests: AllyRequests = {...emptyRequest}
+    // Partial since we can't trust others to not omit fields
+    // we want to make sure we check their existance
+    allySegmentData: Partial<SimpleAlliesSegment> = {}
     currentAlly: string
 
     /**
@@ -193,11 +186,6 @@ class SimpleAllies {
             work: [],
             funnel: [],
             room: [],
-        }
-        this.myResponses = {
-            defense: [],
-            attack: [],
-            work: [],
         }
 
         this.readAllySegment()
