@@ -118,6 +118,7 @@ class SimpleAllies {
     /**
      * Influence allies aggresion score towards a player
      * @param {Object} args - a request object
+     * @param {string} args.playerName
      * @param {number} args.hate - 0-1 where 1 is highest consideration. How much you think your team should hate the player. Should probably affect combat aggression and targetting
      * @param {number} args.lastAttackedBy - The last time this player has attacked you
      */
