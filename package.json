@@ -1,45 +1,32 @@
 {
-  "name": "simpleallies",
+  "name": "simple-allies",
   "version": "1.0.0",
-  "description": "Allows for simple communication between allies using a public segment",
-  "main": "src",
-  "directories": {
-    "example": "examples"
-  },
+  "description": "Allows for communication between allies using a public segment in Screeps",
+  "homepage": "https://github.com/screepers/simpleAllies",
+  "repository": "github:screepers/simpleAllies",
+  "bugs": "https://github.com/screepers/simpleAllies/issues",
+  "main": "./src/simplesAllies.ts",
   "scripts": {
+    "build": "rollup -c rollup.config.mjs",
     "lint": "eslint src",
-    "lint-fix": "eslint src --fix",
-    "release": "semantic-release",
-    "compodoc": "npx @compodoc/compodoc -p tsconfig.json --disableSourceCode --output docs",
-    "compodoc:serve": "npx @compodoc/compodoc -p tsconfig.json --disableSourceCode -s --output docs"
+    "lint-fix": "eslint src --fix"
   },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/screepers/simpleAllies.git"
-  },
-  "author": "Carson Burke",
+  "author": "screepers",
   "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/screepers/simpleAllies/issues"
-  },
-  "homepage": "https://github.com/screepers/simpleAllies#readme",
   "devDependencies": {
-    "@compodoc/compodoc": "^1.1.19",
-    "@semantic-release/changelog": "^6.0.3",
-    "@semantic-release/commit-analyzer": "^9.0.2",
-    "@semantic-release/git": "^10.0.1",
-    "@semantic-release/release-notes-generator": "^11.0.1",
-    "eslint": "^7.23.0",
-    "eslint-config-prettier": "^7.2.0",
-    "eslint-plugin-import": "^2.22.1",
-    "eslint-plugin-prettier": "^3.3.1",
-    "eslint-plugin-screeps": "^2.1.0",
-    "prettier": "^2.3.2",
-    "screeps-viz": "^2.1.3",
-    "semantic-release": "^21.0.7",
-    "typescript": "4.4"
-  },
-  "dependencies": {
-    "@types/screeps": "^3.3.7"
+    "@rollup/plugin-commonjs": "^25.0.7",
+    "@rollup/plugin-node-resolve": "^15.2.3",
+    "@rollup/plugin-typescript": "^11.1.5",
+    "@types/node": "^20.8.0",
+    "@types/screeps": "^3.3.7",
+    "@typescript-eslint/eslint-plugin": "^6.0.0",
+    "@typescript-eslint/parser": "^6.0.0",
+    "eslint": "^8.51.0",
+    "eslint-config-prettier": "^9.0.0",
+    "eslint-plugin-prettier": "^5.0.1",
+    "prettier": "^3.0.3",
+    "rollup": "2.79.1",
+    "rollup-plugin-clear": "^2.0.7",
+    "typescript": "4.9.5"
   }
 }
