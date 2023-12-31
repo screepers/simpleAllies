@@ -191,10 +191,15 @@ class SimpleAllies {
      * To call before any requests are made or responded to. Configures some required values and gets ally requests
      */
     initRun() {
-        // reset my requests
-        for (let key in this.myRequests) {
-            const requestType = key as keyof AllyRequests
-            this.myRequests[requestType].length = 0
+        // Reset the data of myRequests
+        this.myRequests = {
+            resource: [],
+            defense: [],
+            attack: [],
+            player: [],
+            work: [],
+            funnel: [],
+            room: [],
         }
         // reset econ info
         this.myEconInfo = undefined
