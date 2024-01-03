@@ -24,6 +24,10 @@ export interface ResourceRequest {
      * If the bot has no terminal, allies should instead haul the resources to us
      */
     terminal?: boolean
+    /**
+     * Tick after which the request should be ignored. If your bot crashes, or stops updating requests for some other reason, this is a safety mechanism.
+     */
+    timeout?: number;
 }
 
 export interface DefenseRequest {
@@ -32,6 +36,10 @@ export interface DefenseRequest {
      * 0-1 where 1 is highest consideration
      */
     priority: number
+    /**
+     * Tick after which the request should be ignored. If your bot crashes, or stops updating requests for some other reason, this is a safety mechanism.
+     */
+    timeout?: number;
 }
 
 export interface AttackRequest {
@@ -40,6 +48,10 @@ export interface AttackRequest {
      * 0-1 where 1 is highest consideration
      */
     priority: number
+    /**
+     * Tick after which the request should be ignored. If your bot crashes, or stops updating requests for some other reason, this is a safety mechanism.
+     */
+    timeout?: number;
 }
 
 export interface PlayerRequest {
@@ -52,6 +64,10 @@ export interface PlayerRequest {
      * The last time this player has attacked you
      */
     lastAttackedBy?: number
+    /**
+     * Tick after which the request should be ignored. If your bot crashes, or stops updating requests for some other reason, this is a safety mechanism.
+     */
+    timeout?: number;
 }
 
 export type WorkRequestType = 'build' | 'repair'
@@ -63,6 +79,10 @@ export interface WorkRequest {
      */
     priority: number
     workType: WorkRequestType
+    /**
+     * Tick after which the request should be ignored. If your bot crashes, or stops updating requests for some other reason, this is a safety mechanism.
+     */
+    timeout?: number;
 }
 
 export const enum FunnelGoal {
@@ -84,26 +104,10 @@ export interface FunnelRequest {
      * Room to which energy should be sent. If undefined resources can be sent to any of requesting player's rooms.
      */
     roomName?: string;
-}
-
-export interface EconRequest {
     /**
-     * total credits the bot has. Should be 0 if there is no market on the server
+     * Tick after which the request should be ignored. If your bot crashes, or stops updating requests for some other reason, this is a safety mechanism.
      */
-    credits: number
-    /**
-     * the maximum amount of energy the bot is willing to share with allies. Should never be more than the amount of energy the bot has in storing structures
-     */
-    sharableEnergy: number
-    /**
-     * The average energy income the bot has calculated over the last 100 ticks
-     * Optional, as some bots might not be able to calculate this easily.
-     */
-    energyIncome?: number
-    /**
-     * The number of mineral nodes the bot has access to, probably used to inform expansion
-     */
-    mineralNodes?: { [key in MineralConstant]: number }
+    timeout?: number;
 }
 
 export interface RoomRequest {
@@ -124,6 +128,30 @@ export interface RoomRequest {
     towers: number
     avgRamprtHits: number
     terminal: boolean
+    /**
+     * Tick after which the request should be ignored. If your bot crashes, or stops updating requests for some other reason, this is a safety mechanism.
+     */
+    timeout?: number;
+}
+
+export interface EconInfo {
+    /**
+     * total credits the bot has. Should be 0 if there is no market on the server
+     */
+    credits: number
+    /**
+     * the maximum amount of energy the bot is willing to share with allies. Should never be more than the amount of energy the bot has in storing structures
+     */
+    sharableEnergy: number
+    /**
+     * The average energy income the bot has calculated over the last 100 ticks
+     * Optional, as some bots might not be able to calculate this easily.
+     */
+    energyIncome?: number
+    /**
+     * The number of mineral nodes the bot has access to, probably used to inform expansion
+     */
+    mineralNodes?: Partial<Record<MineralConstant, number>>
 }
 
 export interface AllyRequests {
@@ -132,8 +160,7 @@ export interface AllyRequests {
     attack: AttackRequest[]
     player: PlayerRequest[]
     work: WorkRequest[]
-    funnel: FunnelRequest[];
-    econ?: EconRequest
+    funnel: FunnelRequest[]
     room: RoomRequest[]
 }
 
@@ -141,28 +168,23 @@ export interface AllyRequests {
  * Having data we pass into the segment being an object allows us to send additional information outside of requests
  */
 export interface SimpleAlliesSegment {
-    /**
-     * Requests of the new system
-     */
-    requests: AllyRequests
-}
-
-const requestsSekelton: AllyRequests = {
-    resource: [],
-    defense: [],
-    attack: [],
-    player: [],
-    work: [],
-    funnel: [],
-    room: [],
+    requests?: AllyRequests
+    econ?: EconInfo
 }
 
 
 class SimpleAllies {
-    myRequests: AllyRequests = {...requestsSekelton}
-    // Partial since we can't trust others to not omit fields
-    // we want to make sure we check their existence
-    allySegmentData: Partial<SimpleAlliesSegment> = {}
+    private myRequests: AllyRequests = {
+        resource: [],
+        defense: [],
+        attack: [],
+        player: [],
+        work: [],
+        funnel: [],
+        room: []
+    }
+    private myEconInfo?: EconInfo
+    allySegmentData: SimpleAlliesSegment = {}
     currentAlly?: string
 
     /**
@@ -179,6 +201,8 @@ class SimpleAllies {
             funnel: [],
             room: [],
         }
+        // reset econ info
+        this.myEconInfo = undefined
 
         this.readAllySegment()
     }
@@ -186,7 +210,7 @@ class SimpleAllies {
     /**
      * Try to get segment data from our current ally. If successful, assign to the instane
      */
-    readAllySegment() {
+    private readAllySegment() {
         if (!allies.length) {
             throw Error("Failed to find an ally for simpleAllies, you probably have none :(")
         }
@@ -220,7 +244,8 @@ class SimpleAllies {
         }
 
         const newSegmentData: SimpleAlliesSegment = {
-            requests: this.myRequests as AllyRequests
+            requests: this.myRequests,
+            econ: this.myEconInfo
         }
 
         RawMemory.segments[allySegmentID] = JSON.stringify(newSegmentData)
@@ -253,12 +278,14 @@ class SimpleAllies {
         this.myRequests.funnel.push(args)
     }
 
-    requestEcon(args: EconRequest) {
-        this.myRequests.econ = args
-    }
-
     requestRoom(args: RoomRequest) {
         this.myRequests.room.push(args)
+    }
+
+    //
+
+    setEconInfo(args: EconInfo) {
+        this.myEconInfo = args
     }
 }
 
