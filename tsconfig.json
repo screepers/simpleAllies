@@ -1,24 +1,14 @@
 {
     "compilerOptions": {
-        "allowJs": true,
-        "experimentalDecorators": true,
-        "module": "CommonJS",
-        "lib": ["es2019", "dom"],
-        "target": "ESNext",
+        "target": "es2015",
+        "module": "es2015",
+        "lib": ["esnext"],
         "moduleResolution": "node",
-        "outDir": "src/js",
-        "baseUrl": "src/ts",
+        "outDir": "./dist",
+        "baseUrl": "./src",
         "strict": true,
-        "noImplicitAny": true,
         "removeComments": false,
-        "noImplicitReturns": true,
-        "allowSyntheticDefaultImports": true,
-        "allowUnreachableCode": true,
-        "strictNullChecks": false,
-        "esModuleInterop": true,
-        "sourceMap": false,
-        "skipLibCheck": true,
+        "declaration": false,
     },
-    "include": ["./src/ts"],
-    /* "exclude": ["node_modules", "src/js", "docs"] */
+    "include": ["./src"]
 }

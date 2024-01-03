@@ -1,9 +1,20 @@
 # Simple Allies
-Allows for simple communication between allies using a public segment
 
-## Usage
+Simple Allies is a tool for Screeps that simplifies ally communication. It provides a data model for segment communication, facilitating requests for resources, defense, attacks, hostility, work, funneling, and scouting. This is designed to enhance alliance cooperation and strategic gameplay.
 
-Plug this into your screeps bot and begin communicating with allies!
+### Usage
 
-- priority values should be from 0-1, where 1 is most preferred and 0 is least preferred
-- avoid sending verbose data! The more data you send, the more expensive it is for your allies to parse and read it.
+To integrate Simple Allies into your Screeps bot, import the necessary components from the project and incorporate them into your code.
+
+### Code
+
+For more details, refer to the source code:
+
+- TypeScript source code: [src/](./src/)
+- Built JavaScript code: [dist/](./dist/)
+
+Please note that the JavaScript code is generated from the TypeScript source code and should be functionally identical.
+
+### Contributing
+
+Contributions are welcome! Feel free to submit a pull request.
