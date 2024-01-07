@@ -8,7 +8,7 @@
         "baseUrl": "./src",
         "strict": true,
         "removeComments": false,
-        "declaration": false,
+        "declaration": false
     },
     "include": ["./src"]
 }
