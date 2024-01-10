@@ -8,7 +8,13 @@ export const allies = ['Player1', 'Player2', 'Player3'];
 /**
  * This segment ID used for team communication
  */
-export const allySegmentID = 90;
+export const SIMPLE_ALLIES_SEGMENT_ID = 90;
+
+/**
+ * Max number of segments openable at once
+ * This isn't in the docs for some reason, so we need to add it
+ */
+const MAX_OPEN_SEGMENTS = 10;
 
 /**
  * Represents the goal type enum for javascript
@@ -99,7 +105,7 @@ export class SimpleAllies {
 
         // Make a request to read the data of the next ally in the list, for next tick
         const nextAllyName = allies[(Game.time + 1) % allies.length];
-        RawMemory.setActiveForeignSegment(nextAllyName, allySegmentID);
+        RawMemory.setActiveForeignSegment(nextAllyName, SIMPLE_ALLIES_SEGMENT_ID);
 
         // Maybe the code didn't run last tick, so we didn't set a new read segment
         if (!RawMemory.foreignSegment) return;
@@ -109,7 +115,7 @@ export class SimpleAllies {
         try {
             return JSON.parse(RawMemory.foreignSegment.data) as Types.SimpleAlliesSegment;
         } catch (e) {
-            this.log(`Error reading ${this.currentAlly} segment ${allySegmentID}`);
+            this.log(`Error reading ${this.currentAlly} segment ${SIMPLE_ALLIES_SEGMENT_ID}`);
         }
     }
 
@@ -117,17 +123,17 @@ export class SimpleAllies {
      * To call after requests have been made, to assign requests to the next ally
      */
     public endRun() {
-        if (Object.keys(RawMemory.segments).length >= 10) {
+        if (Object.keys(RawMemory.segments).length >= MAX_OPEN_SEGMENTS) {
             this.log('Too many segments open');
             return;
         }
 
-        RawMemory.segments[allySegmentID] = JSON.stringify({
+        RawMemory.segments[SIMPLE_ALLIES_SEGMENT_ID] = JSON.stringify({
             requests: this.myRequests,
             econ: this.myEconInfo,
             updated: Game.time,
         });
-        RawMemory.setPublicSegments([allySegmentID]);
+        RawMemory.setPublicSegments([SIMPLE_ALLIES_SEGMENT_ID]);
     }
 
     /**
