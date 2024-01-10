@@ -10,8 +10,8 @@ To integrate Simple Allies into your Screeps bot, import the necessary component
 
 For more details, refer to the source code:
 
-- TypeScript source code: [src/](./src/)
-- Built JavaScript code: [dist/](./dist/)
+-   TypeScript source code: [src/](./src/)
+-   Built JavaScript code: [dist/](./dist/)
 
 Please note that the JavaScript code is generated from the TypeScript source code and should be functionally identical.
 
