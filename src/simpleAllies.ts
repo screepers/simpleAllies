@@ -92,6 +92,80 @@ export class SimpleAllies {
         this.allySegmentData = this.readAllySegment();
     }
 
+    // Private Segment helpers
+
+    /**
+     * Private helper to check for segment availability
+     *
+     * Subclasses can override that to perform their own segment processing
+     */
+    private canOpenSegment() {
+        return Object.keys(RawMemory.segments).length >= MAX_OPEN_SEGMENTS;
+    }
+
+    /**
+     * Private helper to write a segment
+     *
+     * Subclasses can override that to perform their own segment processing
+     */
+    private writeSegment(id: number, segment: Types.SimpleAlliesSegment) {
+        RawMemory.segments[id] = JSON.stringify(segment);
+    }
+
+    /**
+     * Private helper to mark a segment as public
+     *
+     * Subclasses can override that to perform their own segment processing
+     */
+    private markPublic(id: number) {
+        RawMemory.setPublicSegments([id]);
+    }
+
+    /**
+     * Private helper to activate a foreign segment
+     *
+     * Subclasses can override that to perform their own segment processing
+     */
+    private setForeignSegment(playerName: string, id: number) {
+        RawMemory.setActiveForeignSegment(playerName, id);
+    }
+
+    /**
+     * Private helper to read and parse a foreign segment
+     *
+     * Subclasses can override that to perform their own segment processing
+     */
+    private readForeignSegment(playerName: string, id: number) {
+        if (!RawMemory.foreignSegment) return;
+        if (
+            RawMemory.foreignSegment.username !== playerName ||
+            RawMemory.foreignSegment.id !== id
+        ) {
+            this.debug(`not the segment we were expecting, ignoring`);
+            return undefined;
+        }
+
+        // Safely grab the segment and parse it in
+        let segment;
+        try {
+            const parsed = JSON.parse(RawMemory.foreignSegment.data);
+            if (
+                parsed &&
+                typeof parsed === 'object' &&
+                'requests' in parsed &&
+                Array.isArray(parsed.requests) &&
+                'updated' in parsed &&
+                typeof parsed.updated === 'number'
+            ) {
+                segment = parsed as Types.SimpleAlliesSegment;
+            }
+            throw new Error();
+        } catch (err) {
+            this.log(`Error reading ${this.currentAlly} segment ${SIMPLE_ALLIES_SEGMENT_ID}`);
+        }
+        return segment;
+    }
+
     /**
      * Try to read the ally segment data
      */
@@ -105,17 +179,11 @@ export class SimpleAllies {
 
         // Make a request to read the data of the next ally in the list, for next tick
         const nextAllyName = allies[(Game.time + 1) % allies.length];
-        RawMemory.setActiveForeignSegment(nextAllyName, SIMPLE_ALLIES_SEGMENT_ID);
+        this.setForeignSegment(nextAllyName, SIMPLE_ALLIES_SEGMENT_ID);
 
-        // Maybe the code didn't run last tick, so we didn't set a new read segment
-        if (!RawMemory.foreignSegment) return;
-        if (RawMemory.foreignSegment.username !== this.currentAlly) return;
-
-        // Try to parse the segment data
-        try {
-            return JSON.parse(RawMemory.foreignSegment.data) as Types.SimpleAlliesSegment;
-        } catch (e) {
-            this.log(`Error reading ${this.currentAlly} segment ${SIMPLE_ALLIES_SEGMENT_ID}`);
+        const segment = this.readForeignSegment(nextAllyName, SIMPLE_ALLIES_SEGMENT_ID);
+        if ('updated' in segment && 'requests' in segment) {
+            return segment as Types.SimpleAlliesSegment;
         }
     }
 
@@ -123,17 +191,18 @@ export class SimpleAllies {
      * To call after requests have been made, to assign requests to the next ally
      */
     public endRun() {
-        if (Object.keys(RawMemory.segments).length >= MAX_OPEN_SEGMENTS) {
+        if (this.canOpenSegment()) {
             this.log('Too many segments open');
             return;
         }
 
-        RawMemory.segments[SIMPLE_ALLIES_SEGMENT_ID] = JSON.stringify({
+        const segment: Types.SimpleAlliesSegment = {
             requests: this.myRequests,
             econ: this.myEconInfo,
             updated: Game.time,
-        });
-        RawMemory.setPublicSegments([SIMPLE_ALLIES_SEGMENT_ID]);
+        };
+        this.writeSegment(SIMPLE_ALLIES_SEGMENT_ID, segment);
+        this.markPublic(SIMPLE_ALLIES_SEGMENT_ID);
     }
 
     /**
