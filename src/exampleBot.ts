@@ -1,4 +1,6 @@
-import { simpleAllies } from './simpleAllies';
+import { SimpleAllies } from './simpleAllies';
+
+const simpleAllies = new SimpleAllies();
 
 /**
  * Example bot loop

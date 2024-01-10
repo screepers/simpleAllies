@@ -30,7 +30,7 @@ export const EWorkType = {
 /**
  * Simple allies class manages ally requests
  */
-class SimpleAllies {
+export class SimpleAllies {
     /**
      * State
      */
@@ -216,5 +216,3 @@ class SimpleAllies {
         this.myEconInfo = args;
     }
 }
-
-export const simpleAllies = new SimpleAllies();
