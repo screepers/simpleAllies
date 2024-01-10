@@ -46,6 +46,23 @@ export class SimpleAllies {
     private myEconInfo?: Types.EconInfo;
     public allySegmentData?: Types.SimpleAlliesSegment;
     public currentAlly?: string;
+    private _debug: boolean;
+
+    constructor(options?: { debug?: boolean }) {
+        this._debug = options?.debug ?? false;
+    }
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    private log(...args: any[]) {
+        console.log('[SimpleAllies]', ...args);
+    }
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    private debug(...args: any[]) {
+        if (!this._debug) return;
+
+        this.log(...args);
+    }
 
     /**
      * To call before any requests are made or responded to.
@@ -74,7 +91,7 @@ export class SimpleAllies {
      */
     private readAllySegment() {
         if (!allies.length) {
-            console.log('[simpleAllies] You have no allies');
+            this.log('You have no allies');
             return;
         }
 
@@ -92,9 +109,7 @@ export class SimpleAllies {
         try {
             return JSON.parse(RawMemory.foreignSegment.data) as Types.SimpleAlliesSegment;
         } catch (e) {
-            console.log(
-                `[simpleAllies] Error reading ${this.currentAlly} segment ${allySegmentID}`
-            );
+            this.log(`Error reading ${this.currentAlly} segment ${allySegmentID}`);
         }
     }
 
@@ -103,7 +118,7 @@ export class SimpleAllies {
      */
     public endRun() {
         if (Object.keys(RawMemory.segments).length >= 10) {
-            console.log('[simpleAllies] Too many segments open');
+            this.log('Too many segments open');
             return;
         }
 
