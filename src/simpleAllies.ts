@@ -1,11 +1,6 @@
 import * as Types from './types';
 
 /**
- * Allies list
- */
-export const allies = ['Player1', 'Player2', 'Player3'];
-
-/**
  * This segment ID used for team communication
  */
 export const SIMPLE_ALLIES_SEGMENT_ID = 90;
@@ -15,6 +10,11 @@ export const SIMPLE_ALLIES_SEGMENT_ID = 90;
  * This isn't in the docs for some reason, so we need to add it
  */
 const MAX_OPEN_SEGMENTS = 10;
+
+/**
+ * The rate at which to refresh allied segments
+ */
+const SIMPLE_ALLIES_MIN_REFRESH_RATE = 5;
 
 /**
  * Represents the goal type enum for javascript
@@ -50,12 +50,18 @@ export class SimpleAllies {
         room: [],
     };
     private myEconInfo?: Types.EconInfo;
-    public allySegmentData?: Types.SimpleAlliesSegment;
-    public currentAlly?: string;
+    public allySegments: { [playerName: string]: Types.SimpleAlliesSegment };
+    private allyIdx: number;
+    private _allies: Set<string>;
+    private refreshRate: number;
     private _debug: boolean;
 
-    constructor(options?: { debug?: boolean }) {
+    constructor(options?: { debug?: boolean; refreshRate?: number }) {
         this._debug = options?.debug ?? false;
+        this.refreshRate = options?.refreshRate ?? SIMPLE_ALLIES_MIN_REFRESH_RATE;
+        this._allies = new Set();
+        this.allyIdx = 0;
+        this.allySegments = {};
     }
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -68,6 +74,21 @@ export class SimpleAllies {
         if (!this._debug) return;
 
         this.log(...args);
+    }
+
+    addAlly(...allies: string[]) {
+        for (const ally of allies) {
+            this._allies.add(ally);
+        }
+    }
+    removeAlly(...allies: string[]) {
+        for (const ally of allies) {
+            this._allies.delete(ally);
+        }
+    }
+
+    get allies() {
+        return [...this._allies.keys()];
     }
 
     /**
@@ -89,7 +110,7 @@ export class SimpleAllies {
         this.myEconInfo = undefined;
 
         // Read ally segment data
-        this.allySegmentData = this.readAllySegment();
+        this.readAllySegment();
     }
 
     // Private Segment helpers
@@ -161,29 +182,46 @@ export class SimpleAllies {
             }
             throw new Error();
         } catch (err) {
-            this.log(`Error reading ${this.currentAlly} segment ${SIMPLE_ALLIES_SEGMENT_ID}`);
+            this.log(`Error reading ${playerName} segment ${SIMPLE_ALLIES_SEGMENT_ID}`);
         }
         return segment;
     }
 
     /**
-     * Try to read the ally segment data
+     * Refresh our allies' shared segments in a round-robin
      */
     private readAllySegment() {
-        if (!allies.length) {
-            this.log('You have no allies');
+        if (!this._allies.size) {
+            this.log(`no allies, skipping`);
             return;
         }
 
-        this.currentAlly = allies[Game.time % allies.length];
+        const clock = ((Game.time - 1) % this.refreshRate) - this.refreshRate + 1;
+        switch (clock) {
+            case -1: {
+                // Make a request to read the data of the next ally in the list, for next tick
+                this.allyIdx = (this.allyIdx + 1) % this._allies.size;
+                const ally = this.allies[this.allyIdx];
+                this.debug(`loading segment for ${ally}`);
+                this.setForeignSegment(ally, SIMPLE_ALLIES_SEGMENT_ID);
+                break;
+            }
+            case 0: {
+                this.debug(`checking loaded segment…`);
+                const ally = this.allies[this.allyIdx];
+                const segment = this.readForeignSegment(ally, SIMPLE_ALLIES_SEGMENT_ID);
+                if (segment) {
+                    this.debug(`successfully loaded segment for ${ally}`);
+                    this.allySegments[ally] = segment;
+                } else {
+                    this.debug(`unable to load segment for ${ally}, resetting`);
+                    delete this.allySegments[ally];
+                }
 
-        // Make a request to read the data of the next ally in the list, for next tick
-        const nextAllyName = allies[(Game.time + 1) % allies.length];
-        this.setForeignSegment(nextAllyName, SIMPLE_ALLIES_SEGMENT_ID);
-
-        const segment = this.readForeignSegment(nextAllyName, SIMPLE_ALLIES_SEGMENT_ID);
-        if ('updated' in segment && 'requests' in segment) {
-            return segment as Types.SimpleAlliesSegment;
+                break;
+            }
+            default:
+                break;
         }
     }
 
