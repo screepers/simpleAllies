@@ -1,7 +1,7 @@
 import * as Types from './types';
 
 /**
- * This segment ID used for team communication
+ * The segment ID used for communication
  */
 export const SIMPLE_ALLIES_SEGMENT_ID = 90;
 
