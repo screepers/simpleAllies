@@ -24,6 +24,7 @@
         "@rollup/plugin-commonjs": "^25.0.7",
         "@rollup/plugin-node-resolve": "^15.2.3",
         "@rollup/plugin-typescript": "^11.1.5",
+        "@total-typescript/ts-reset": "^0.5.1",
         "@types/node": "^20.8.0",
         "@types/screeps": "^3.3.7",
         "@typescript-eslint/eslint-plugin": "^6.0.0",
