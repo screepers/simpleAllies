@@ -17,4 +17,4 @@ Please note that the JavaScript code is generated from the TypeScript source cod
 
 ### Contributing
 
-Contributions are welcome! Feel free to submit a pull request.
+Contributions are welcome! Feel free to submit a pull request. Please do to the the development branch unless there is a good reason not to.
