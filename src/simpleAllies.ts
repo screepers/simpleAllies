@@ -1,14 +1,20 @@
 import * as Types from './types';
 
 /**
- * Allies list
+ * The segment ID used for communication
  */
-export const allies = ['Player1', 'Player2', 'Player3'];
+export const SIMPLE_ALLIES_SEGMENT_ID = 90;
 
 /**
- * This segment ID used for team communication
+ * Max number of segments openable at once
+ * This isn't in the docs for some reason, so we need to add it
  */
-export const allySegmentID = 90;
+const MAX_OPEN_SEGMENTS = 10;
+
+/**
+ * The rate at which to refresh allied segments
+ */
+const SIMPLE_ALLIES_MIN_REFRESH_RATE = 5;
 
 /**
  * Represents the goal type enum for javascript
@@ -30,7 +36,7 @@ export const EWorkType = {
 /**
  * Simple allies class manages ally requests
  */
-class SimpleAllies {
+export class SimpleAllies {
     /**
      * State
      */
@@ -44,8 +50,46 @@ class SimpleAllies {
         room: [],
     };
     private myEconInfo?: Types.EconInfo;
-    public allySegmentData?: Types.SimpleAlliesSegment;
-    public currentAlly?: string;
+    public allySegments: { [playerName: string]: Types.SimpleAlliesSegment };
+    private allyIdx: number;
+    private _allies: Set<string>;
+    private refreshRate: number;
+    private _debug: boolean;
+
+    constructor(options?: { debug?: boolean; refreshRate?: number }) {
+        this._debug = options?.debug ?? false;
+        this.refreshRate = options?.refreshRate ?? SIMPLE_ALLIES_MIN_REFRESH_RATE;
+        this._allies = new Set();
+        this.allyIdx = 0;
+        this.allySegments = {};
+    }
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    private log(...args: any[]) {
+        console.log('[SimpleAllies]', ...args);
+    }
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    private debug(...args: any[]) {
+        if (!this._debug) return;
+
+        this.log(...args);
+    }
+
+    addAlly(...allies: string[]) {
+        for (const ally of allies) {
+            this._allies.add(ally);
+        }
+    }
+    removeAlly(...allies: string[]) {
+        for (const ally of allies) {
+            this._allies.delete(ally);
+        }
+    }
+
+    get allies() {
+        return [...this._allies.keys()];
+    }
 
     /**
      * To call before any requests are made or responded to.
@@ -66,35 +110,118 @@ class SimpleAllies {
         this.myEconInfo = undefined;
 
         // Read ally segment data
-        this.allySegmentData = this.readAllySegment();
+        this.readAllySegment();
+    }
+
+    // Private Segment helpers
+
+    /**
+     * Private helper to check for segment availability
+     *
+     * Subclasses can override that to perform their own segment processing
+     */
+    private canOpenSegment() {
+        return Object.keys(RawMemory.segments).length >= MAX_OPEN_SEGMENTS;
     }
 
     /**
-     * Try to read the ally segment data
+     * Private helper to write a segment
+     *
+     * Subclasses can override that to perform their own segment processing
+     */
+    private writeSegment(id: number, segment: Types.SimpleAlliesSegment) {
+        RawMemory.segments[id] = JSON.stringify(segment);
+    }
+
+    /**
+     * Private helper to mark a segment as public
+     *
+     * Subclasses can override that to perform their own segment processing
+     */
+    private markPublic(id: number) {
+        RawMemory.setPublicSegments([id]);
+    }
+
+    /**
+     * Private helper to activate a foreign segment
+     *
+     * Subclasses can override that to perform their own segment processing
+     */
+    private setForeignSegment(playerName: string, id: number) {
+        RawMemory.setActiveForeignSegment(playerName, id);
+    }
+
+    /**
+     * Private helper to read and parse a foreign segment
+     *
+     * Subclasses can override that to perform their own segment processing
+     */
+    private readForeignSegment(playerName: string, id: number) {
+        if (!RawMemory.foreignSegment) return;
+        if (
+            RawMemory.foreignSegment.username !== playerName ||
+            RawMemory.foreignSegment.id !== id
+        ) {
+            this.debug(`not the segment we were expecting, ignoring`);
+            return undefined;
+        }
+
+        // Safely grab the segment and parse it in
+        let segment;
+        try {
+            const parsed = JSON.parse(RawMemory.foreignSegment.data);
+            if (
+                parsed &&
+                typeof parsed === 'object' &&
+                'requests' in parsed &&
+                Array.isArray(parsed.requests) &&
+                'updated' in parsed &&
+                typeof parsed.updated === 'number'
+            ) {
+                segment = parsed as Types.SimpleAlliesSegment;
+            }
+            throw new Error();
+        } catch (err) {
+            this.log(`Error reading ${playerName} segment ${SIMPLE_ALLIES_SEGMENT_ID}`);
+        }
+        return segment;
+    }
+
+    /**
+     * Refresh our allies' shared segments in a round-robin
      */
     private readAllySegment() {
-        if (!allies.length) {
-            console.log('[simpleAllies] You have no allies');
+        if (!this._allies.size) {
+            this.log(`no allies, skipping`);
             return;
         }
 
-        this.currentAlly = allies[Game.time % allies.length];
+        const clock = ((Game.time - 1) % this.refreshRate) - this.refreshRate + 1;
+        switch (clock) {
+            case -1: {
+                // Make a request to read the data of the next ally in the list, for next tick
+                this.allyIdx = (this.allyIdx + 1) % this._allies.size;
+                const ally = this.allies[this.allyIdx];
+                this.debug(`loading segment for ${ally}`);
+                this.setForeignSegment(ally, SIMPLE_ALLIES_SEGMENT_ID);
+                break;
+            }
+            case 0: {
+                this.debug(`checking loaded segment…`);
+                const ally = this.allies[this.allyIdx];
+                const segment = this.readForeignSegment(ally, SIMPLE_ALLIES_SEGMENT_ID);
+                if (segment) {
+                    this.debug(`successfully loaded segment for ${ally}`);
+                    this.allySegments[ally] = segment;
+                } else {
+                    this.debug(`unable to load segment for ${ally}, resetting`);
+                    delete this.allySegments[ally];
+                }
 
-        // Make a request to read the data of the next ally in the list, for next tick
-        const nextAllyName = allies[(Game.time + 1) % allies.length];
-        RawMemory.setActiveForeignSegment(nextAllyName, allySegmentID);
-
-        // Maybe the code didn't run last tick, so we didn't set a new read segment
-        if (!RawMemory.foreignSegment) return;
-        if (RawMemory.foreignSegment.username !== this.currentAlly) return;
-
-        // Try to parse the segment data
-        try {
-            return JSON.parse(RawMemory.foreignSegment.data) as Types.SimpleAlliesSegment;
-        } catch (e) {
-            console.log(
-                `[simpleAllies] Error reading ${this.currentAlly} segment ${allySegmentID}`
-            );
+                break;
+            }
+            default:
+                break;
         }
     }
 
@@ -102,17 +229,18 @@ class SimpleAllies {
      * To call after requests have been made, to assign requests to the next ally
      */
     public endRun() {
-        if (Object.keys(RawMemory.segments).length >= 10) {
-            console.log('[simpleAllies] Too many segments open');
+        if (this.canOpenSegment()) {
+            this.log('Too many segments open');
             return;
         }
 
-        RawMemory.segments[allySegmentID] = JSON.stringify({
+        const segment: Types.SimpleAlliesSegment = {
             requests: this.myRequests,
             econ: this.myEconInfo,
             updated: Game.time,
-        });
-        RawMemory.setPublicSegments([allySegmentID]);
+        };
+        this.writeSegment(SIMPLE_ALLIES_SEGMENT_ID, segment);
+        this.markPublic(SIMPLE_ALLIES_SEGMENT_ID);
     }
 
     /**
@@ -216,5 +344,3 @@ class SimpleAllies {
         this.myEconInfo = args;
     }
 }
-
-export const simpleAllies = new SimpleAllies();

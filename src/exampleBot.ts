@@ -1,4 +1,6 @@
-import { simpleAllies } from './simpleAllies';
+import { SimpleAllies } from './simpleAllies';
+
+const simpleAllies = new SimpleAllies();
 
 /**
  * Example bot loop
@@ -23,12 +25,14 @@ export function loop() {
  * Example of responding to ally defense requests
  */
 function respondToAllyDefenseRequests() {
-    if (!simpleAllies.allySegmentData) return;
+    for (const playerName in simpleAllies.allySegments) {
+        const segment = simpleAllies.allySegments[playerName];
 
-    // Send creeps to defend rooms
-    for (const request of simpleAllies.allySegmentData.requests.defense) {
-        console.log('[simpleAllies] Respond to defense request', JSON.stringify(request));
-        // ...
+        // Send creeps to defend rooms
+        for (const request of segment.requests.defense) {
+            console.log('[simpleAllies] Respond to defense request', JSON.stringify(request));
+            // ...
+        }
     }
 }
 
@@ -36,12 +40,14 @@ function respondToAllyDefenseRequests() {
  * Example of responding to ally resource requests
  */
 function respondToAllyResourceRequests() {
-    if (!simpleAllies.allySegmentData) return;
+    for (const playerName in simpleAllies.allySegments) {
+        const segment = simpleAllies.allySegments[playerName];
 
-    // Send resources to rooms
-    for (const request of simpleAllies.allySegmentData.requests.resource) {
-        console.log('[simpleAllies] Respond to resource request', JSON.stringify(request));
-        // ...
+        // Send resources to rooms
+        for (const request of segment.requests.resource) {
+            console.log('[simpleAllies] Respond to resource request', JSON.stringify(request));
+            // ...
+        }
     }
 }
 
