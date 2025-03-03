@@ -20,9 +20,10 @@ const EFunnelGoalType = {
 
 //
 class SimpleAllies {
-    myRequests = {};
-    allySegmentData;
-    currentAlly;
+
+    constructor() {
+	this.myRequests = {}
+    }
 	
     /**
      * To call before any requests are made or responded to. Configures some required values and gets ally requests
